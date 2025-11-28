@@ -177,7 +177,7 @@ ObsRadianceCRTM::Locations_ ObsRadianceCRTM::locations() const {
   std::unique_ptr<oops::SamplingMethodSelector> selector{};
 
   // FOV center coords
-  const size_t nlocs = odb_.nlocs();
+  const size_t nlocs = odb_.nlocs(); // number of observations
   // floats are needed for the Locations constructor :(
   std::vector<float> lons(nlocs);
   std::vector<float> lats(nlocs);
@@ -188,7 +188,7 @@ ObsRadianceCRTM::Locations_ ObsRadianceCRTM::locations() const {
 
   sampledLocations.push_back(SampledLocations_(
         std::make_unique<SampledLocations>(
-          lons, lats, times, odb_.distribution()))); //just the location of the true observation
+          lons, lats, times, odb_.distribution()))); //just the location of the true observations
 
   if (do_fov_average_) {
     // Get sensor and platform from sensorID in yaml
@@ -203,7 +203,7 @@ ObsRadianceCRTM::Locations_ ObsRadianceCRTM::locations() const {
     // Get observation data that will defined the field-of-view
     std::vector<int> scan_positions(nlocs);
     std::vector<float> azimuth_angles(nlocs);
-    odb_.get_db("MetaData", "sensorScanPosition", scan_positions);
+    odb_.get_db("MetaData", "sensorScanPosition", scan_positions);  //my FORUM measures has no these MetaData
     odb_.get_db("MetaData", "sensorAzimuthAngle", azimuth_angles);
 
     // Sample the FOV ellipse
@@ -223,14 +223,14 @@ ObsRadianceCRTM::Locations_ ObsRadianceCRTM::locations() const {
   }
 
   oops::Log::trace() << "ObsRadianceCRTM::locations done" << std::endl;
-  return Locations_(std::move(sampledLocations),
+  return Locations_(std::move(sampledLocations),  //this vector is dimension 1 or 2
                     std::make_unique<detail::FovSelector>(do_fov_average_));
 }
 
 // -----------------------------------------------------------------------------
 
 void ObsRadianceCRTM::computeReducedVars(const oops::Variables & vars, GeoVaLs & geovals) const {
-  oops::Log::trace() << "ObsRadianceCRTM::computeReducedVars start" << std::endl;
+  oops::Log::trace() << "ObsRadianceCRTM::computeReducedVars start" << std::endl; 
 
   // Sanity check: GeoVaLs do not yet contain reduced vars
   // (OR: reduced vars match sampled vars; this is not production behavior, but needed for tests
@@ -244,10 +244,10 @@ void ObsRadianceCRTM::computeReducedVars(const oops::Variables & vars, GeoVaLs &
   for (const auto & v : vars.variables()) {
     ASSERT(gvars.has(v));
   }
-  oops::Variables vars_not_for_crtm = vars;
+  oops::Variables vars_not_for_crtm = vars; //vars are the ones asked to be reduce
   vars_not_for_crtm -= varin_;
   for (const auto & v : vars_not_for_crtm.variables()) {
-    ASSERT(!detail::vars_to_fov_average.has(v));
+    ASSERT(!detail::vars_to_fov_average.has(v));  //vars_to_fov_average is the list defined at the beginning
   }
 
   // Allocate reduced vars in geovals
