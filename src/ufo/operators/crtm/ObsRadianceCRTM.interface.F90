@@ -53,6 +53,7 @@ type(fckit_configuration) :: f_conf
 type(fckit_mpi_comm) :: f_comm
 
 call ufo_radiancecrtm_registry%setup(c_key_self, self)  !self is the pointer to Fortran object of type ufo_radiancecrtm
+! and the routine ufo_radiancecrtm_setup is called as internal method
 f_conf = fckit_configuration(c_conf)
 
 f_comm = fckit_mpi_comm(c_comm)
@@ -114,4 +115,3 @@ end subroutine ufo_radiancecrtm_simobs_c
 ! ------------------------------------------------------------------------------
 
 end module ufo_radiancecrtm_mod_c
-
